@@ -1,0 +1,8 @@
+.parsley-errors-list {
+    list-style: none;
+    padding: 0;
+}
+
+.parsley-errors-list li {
+    color: #f06548;
+}
