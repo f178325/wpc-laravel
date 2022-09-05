@@ -37,7 +37,6 @@
         },
         "files": [
             "app\\Helper\\helper.php",
-            "app\\Models\\cpanelAPI.php",
             "app\\Models\\xmlapi.php"
         ]
     },

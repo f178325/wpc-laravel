@@ -6,3 +6,14 @@
 .parsley-errors-list li {
     color: #f06548;
 }
+
+.input-icons label {
+    position: relative;
+}
+
+.input-icons span {
+    position: absolute;
+    display: flex;
+    right: -50%;
+    top: -2px;
+}

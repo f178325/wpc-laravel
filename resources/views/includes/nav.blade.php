@@ -42,10 +42,19 @@
                        href="{{ route('getHosts') }}"><i
                             class="mdi mdi-view-carousel-outline"></i><span>My Websites</span></a>
                 </li>
+                <li class="menu-title"><span data-key="t-menu">REPOSITORY</span></li>
+                <li class="nav-item">
+                    <a class="nav-link menu-link {{request()->segment(1) == 'file-repository' ? 'active' : ''}}"
+                       href="{{ route('getRepository') }}"><i class="mdi mdi-folder"></i><span>File Repository</span></a>
+                </li>
                 <li class="menu-title"><span data-key="t-menu">MANAGE EMAILS</span></li>
                 <li class="nav-item">
                     <a class="nav-link menu-link {{request()->segment(1) == 'bulk-create-emails' ? 'active' : ''}}"
                        href="{{ route('getEmails') }}"><i class="mdi mdi-email"></i><span>Create Emails</span></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link menu-link {{request()->segment(1) == 'create-forwarder' ? 'active' : ''}}"
+                       href="{{ route('getEmailF') }}"><i class="mdi mdi-email-multiple"></i><span>Create Forwarder</span></a>
                 </li>
             </ul>
         </div>

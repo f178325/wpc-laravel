@@ -30,9 +30,16 @@ Route::group(['middleware' => 'auth'], static function () {
     });
 
     Route::controller(CpanelController::class)->group(function () {
+        Route::post('/get-table', 'getTable')->name('getTable');
+
         Route::get('/bulk-create-emails', 'getEmails')->name('getEmails');
-        Route::post('/get-emails', 'getEmailTable')->name('getEmailTable');
-        Route::post('/bulk-create-emails', 'postEmails')->name('postEmails');
+        Route::post('/create-emails', 'postEmails')->name('postEmails');
+
+        Route::get('/create-forwarder', 'getEmailF')->name('getEmailF');
+        Route::post('/create-forwarder', 'postForwarder')->name('postForwarder');
+
+        Route::get('/file-repository', 'getRepository')->name('getRepository');
+        Route::post('/file-repository', 'getRepoList')->name('getRepoList');
     });
 });
-Route::get('/convert', [CpanelController::class, 'convertJson']);
+//Route::get('/convert', [CpanelController::class, 'convertJson']);

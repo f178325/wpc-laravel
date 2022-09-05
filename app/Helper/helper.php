@@ -42,3 +42,29 @@ function loadSheet($file, $sheet)
         'msg' => 'Wrong excel format'
     ]));
 }
+
+function getResponse($response)
+{
+    $response = json_decode($response);
+    if (empty($response)) {
+        return json_encode([
+            'error' => true,
+            'res' => 'Error'
+        ]);
+    }
+    if (isset($response->cpanelresult->error) && !empty($response->cpanelresult->error)) {
+        return json_encode([
+            'error' => true,
+            'res' => 'Error: ' . $response->cpanelresult->error
+        ]);
+    }
+    if (isset($response->cpanelresult->data[0]->result) && !$response->cpanelresult->data[0]->result) {
+        return json_encode([
+            'error' => true,
+            'res' => 'Error: ' . $response->cpanelresult->data[0]->reason
+        ]);
+    }
+    return json_encode([
+        'error' => false
+    ]);
+}

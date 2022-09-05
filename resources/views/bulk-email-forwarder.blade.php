@@ -1,5 +1,5 @@
 @extends('includes.layout')
-@section('title','Bulk Create Emails')
+@section('title','Bulk Create Email Forwarder')
 @section('body')
     <div class="page-content">
         <div class="container-fluid">
@@ -10,7 +10,7 @@
                         <div class="page-title-right">
                             <ol class="breadcrumb m-0">
                                 <li class="breadcrumb-item"><a href="javascript:void(0);">Dashboard</a></li>
-                                <li class="breadcrumb-item active">Create Emails</li>
+                                <li class="breadcrumb-item active">Create Email Forwarder</li>
                             </ol>
                         </div>
                     </div>
@@ -20,9 +20,9 @@
                 <div class="col-lg-12">
                     <div id="formCard" class="card">
                         <div class="card-header align-items-center d-flex">
-                            <h4 class="card-title mb-0 flex-grow-1">Bulk Email Creation</h4>
+                            <h4 class="card-title mb-0 flex-grow-1">Bulk Email Forwarder</h4>
                             <div class="flex-shrink-0">
-                                <a href="{{ asset('sample/sample_bulk_email_creator.xlsx') }}" download=""
+                                <a href="{{ asset('sample/sample_bulk_email_forwarder.xlsx') }}" download=""
                                    class="btn-sm btn btn-secondary"><span
                                         class="me-1 mdi mdi-download"></span>Download Sample
                                 </a>
@@ -32,7 +32,7 @@
                             <div class="live-preview">
                                 <form id="pageForm" method="POST" enctype="multipart/form-data">
                                     @csrf
-                                    <input type="hidden" name="format" value="emailTable">
+                                    <input type="hidden" name="format" value="emailFTable">
                                     <div class="row mb-3">
                                         <div class="col-md-6">
                                             <label for="file" class="form-label">File</label>
@@ -65,8 +65,8 @@
                                     <th>#</th>
                                     <th>Domain</th>
                                     <th>Subdomain</th>
-                                    <th>Username</th>
-                                    <th>Password</th>
+                                    <th>Email</th>
+                                    <th>Forward Email</th>
                                     <th>Status</th>
                                 </tr>
                                 </thead>
@@ -105,19 +105,19 @@
         $("#processBtn").on('click', function () {
             $(this).prop('disabled', true);
             $("#example tbody tr:not([disabled])").each(function () {
-                let domain, subdomain, username, password;
+                let domain, subdomain, email, fwdEmail;
                 let rowStatus = $(this).find('.status');
                 rowStatus.html('<span>Processing... <span class="spinner-border spinner-border-sm"></span></span>');
                 domain = $(this).find('.domain').html();
                 subdomain = $(this).find('.subdomain').html();
-                username = $(this).find('.username').html();
-                password = $(this).find('.password').html();
-                ajaxCall('{{ route('postEmails') }}', 'Content', {
+                email = $(this).find('.email').html();
+                fwdEmail = $(this).find('.fwdEmail').html();
+                ajaxCall('{{ route('postForwarder') }}', 'Content', {
                     _token: '{{ csrf_token() }}',
                     domain: domain,
                     subdomain: subdomain,
-                    username: username,
-                    password: password
+                    email: email,
+                    fwdEmail: fwdEmail
                 }, null, function (data) {
                     if (data.error) {
                         rowStatus.html('<span class="badge bg-danger">' + data.res + '</span>');
