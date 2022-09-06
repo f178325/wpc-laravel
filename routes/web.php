@@ -27,6 +27,9 @@ Route::group(['middleware' => 'auth'], static function () {
     Route::controller(HostController::class)->group(function () {
         Route::get('/servers', 'getHosts')->name('getHosts');
         Route::post('/servers', 'postHosts')->name('postHosts');
+        Route::post('/get-subdomains', 'getSubdomains')->name('getSubdomains');
+
+
     });
 
     Route::controller(CpanelController::class)->group(function () {
@@ -38,8 +41,17 @@ Route::group(['middleware' => 'auth'], static function () {
         Route::get('/create-forwarder', 'getEmailF')->name('getEmailF');
         Route::post('/create-forwarder', 'postForwarder')->name('postForwarder');
 
+        Route::get('/terminate', 'getTerminate')->name('getTerminate');
+        Route::post('/terminate', 'postTerminate')->name('postTerminate');
+
         Route::get('/file-repository', 'getRepository')->name('getRepository');
         Route::post('/file-repository', 'getRepoList')->name('getRepoList');
+
+        Route::get('functions/reconcile-db', 'getReconcile')->name('getReconcile');
+        Route::post('functions/reconcile-db', 'postReconcile')->name('postReconcile');
+        Route::post('/get-database', 'getDatabase')->name('getDatabase');
+
+        Route::get('functions/domain-backup', 'getBackup')->name('getBackup');
+
     });
 });
-//Route::get('/convert', [CpanelController::class, 'convertJson']);

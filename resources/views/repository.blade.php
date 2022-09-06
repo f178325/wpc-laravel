@@ -33,9 +33,12 @@
                                     <div class='col-md-6 mb-3 input-icons'>
                                         <label for="currentDir" class="form-label">Current Directory
                                             <span>
-                                                <a href="#" data-bs-toggle="tooltip" title="Add New Directory"
-                                                   class="ms-2"><i data-feather="plus-square"></i></a>
-                                                <a href="#" data-bs-toggle="tooltip" title="Remove Current Directory"><i
+                                                <a href="#" data-bs-toggle="modal" data-bs-target="#dirModal"
+                                                   class="ms-2">
+                                                    <i data-bs-toggle="tooltip" title="Add New Directory"
+                                                       data-feather="plus-square"></i></a>
+                                                <a id="removeBtn" href="javascript:void(0)" data-bs-toggle="tooltip"
+                                                   title="Remove Current Directory"><i
                                                         data-feather="minus-square"></i></a>
                                             </span>
 
@@ -92,7 +95,34 @@
     </div>
 @endsection
 
-@section('modal')
+@section('page-modals')
+    <div id="dirModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myExtraLargeModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="myExtraLargeModalLabel">Add New Directory</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="dirForm">
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <label for="dirName">Directory Name</label>
+                                <input type="text" class="form-control" id="dirName" name="dirName"
+                                       placeholder="Enter directory name" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-dark" data-bs-dismiss="modal">Close</button>
+                        <button class="btn btn-primary submitBtn">Create directory</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <div id="inputModal" class="modal fade" tabindex="-1" aria-labelledby="exampleModalgridLabel">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -126,9 +156,13 @@
 
 @section('custom')
     <script>
-        // getRepositoryList();
-        $("#modalDirect").on('click', function () {
-            $("#inputModal").modal("show");
+        $("#removeBtn").on('click', function () {
+            if ($("#rootDir").val() === $("#currentDir").val()) {
+                alertify.logPosition('top right'), alertify.error('Cannot delete root directory');
+            }
+        });
+        $('#dirForm').parsley().on('form:submit', function () {
+
         });
 
         function getRepositoryList() {

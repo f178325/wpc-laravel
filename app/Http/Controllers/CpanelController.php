@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Hosts;
 use App\Models\Servers;
+use App\Models\Tables;
 use Exception;
 use Illuminate\Http\Request;
 use xmlapi;
@@ -32,7 +33,7 @@ class CpanelController extends Controller
         } catch (Exception $e) {
             return json_encode([
                 'error' => true,
-                'msg' => $e->getMessage()
+                'res' => $e->getMessage()
             ]);
         }
     }
@@ -60,7 +61,7 @@ class CpanelController extends Controller
         } catch (Exception $e) {
             return json_encode([
                 'error' => true,
-                'msg' => $e->getMessage(),
+                'res' => $e->getMessage(),
             ]);
         }
     }
@@ -103,7 +104,8 @@ class CpanelController extends Controller
             unlink($response['loadPath']);
             $excelData = $spreadsheet->getActiveSheet()->toArray();
             $excelSize = count($excelData);
-            $resHtml = $this->callAction($request['format'], [$excelData, $excelSize]);
+            $table = new Tables();
+            $resHtml = $table->getTableHtml($request['format'], $excelData, $excelSize);
             return json_encode([
                 'error' => false,
                 'html' => $resHtml,
@@ -116,96 +118,132 @@ class CpanelController extends Controller
         }
     }
 
-    public function emailTable($excelData, $excelSize)
+    public function getTerminate()
     {
-        $resHtml = '';
-        for ($i = 1; $i < $excelSize; $i++) {
-            $root = trim($excelData[$i][0]);
-            $subdomain = trim($excelData[$i][1]);
-            $username = trim($excelData[$i][2]);
-            $password = trim($excelData[$i][3]);
-            if (!empty($root) && !empty($username) && !empty($password)) {
-                $host = Hosts::where('name', $root)->first();
-                if ($host) {
-                    $resHtml .= '<tr id="' . $i . '">';
-                } else {
-                    $resHtml .= '<tr id="' . $i . '" class="bg-soft-danger" disabled>';
-                }
-                $resHtml .= '<td>' . $i . '</td>';
-                $resHtml .= '<td class="domain">' . $root . '</td>';
-                $resHtml .= '<td class="subdomain">' . $subdomain . '</td>';
-                $resHtml .= '<td class="username">' . $username . '</td>';
-                $resHtml .= '<td class="password">' . $password . '</td>';
-                if ($host) {
-                    $resHtml .= '<td class="status"></td>';
-                } else {
-                    $resHtml .= '<td class="status"><span class="badge bg-danger">No host found</span></td>';
-                }
-                $resHtml .= '</tr>';
-            }
-        }
-        return $resHtml;
+        return view('terminate');
     }
 
-    public function emailFTable($excelData, $excelSize)
+    public function postTerminate(Request $request)
     {
-        $resHtml = '';
-        for ($i = 1; $i < $excelSize; $i++) {
-            $root = trim($excelData[$i][0]);
-            $subdomain = trim($excelData[$i][1]);
-            $email = trim($excelData[$i][2]);
-            $fwdEmail = trim($excelData[$i][3]);
-            if (!empty($root) && !empty($email) && !empty($fwdEmail)) {
-                $host = Hosts::where('name', $root)->first();
-                if ($host) {
-                    $resHtml .= '<tr id="' . $i . '">';
-                } else {
-                    $resHtml .= '<tr id="' . $i . '" class="bg-soft-danger" disabled>';
-                }
-                $resHtml .= '<td>' . $i . '</td>';
-                $resHtml .= '<td class="domain">' . $root . '</td>';
-                $resHtml .= '<td class="subdomain">' . $subdomain . '</td>';
-                $resHtml .= '<td class="email">' . $email . '</td>';
-                $resHtml .= '<td class="fwdEmail">' . $fwdEmail . '</td>';
-                if ($host) {
-                    $resHtml .= '<td class="status"></td>';
-                } else {
-                    $resHtml .= '<td class="status"><span class="badge bg-danger">No host found</span></td>';
-                }
-                $resHtml .= '</tr>';
-            }
+        try {
+            $whm = new xmlapi($request['server']);
+            $whm->set_output('json');
+            $whm->set_port(2087);
+            $whm->password_auth($request['username'], $request['password']);
+            $response = $whm->removeacct($request['account']);
+            return getResponse($response);
+        } catch (Exception $e) {
+            return json_encode([
+                'error' => true,
+                'res' => $e->getMessage()
+            ]);
         }
-        return $resHtml;
     }
 
-//    public function convertJson()
-//    {
-//        $countFile = storage_path('app/public/files/raw_count.xlsx');
-//        $spreadsheet = loadSheet($countFile, 'raw_count');
-//        $excelData = $spreadsheet->getActiveSheet()->toArray();
-//        $excelSize = count($excelData);
-//        $countArr = [];
-//        for ($i = 1; $i < $excelSize; $i++) {
-//            $domain = strtolower(trim($excelData[$i][0]));
-//            $countArr[$domain] = 1;
-//        }
-//        $file = storage_path('app/public/files/latest.xlsx');
-//        $spreadsheet = loadSheet($file, 'db_csv');
-//        $excelData = $spreadsheet->getActiveSheet()->toArray();
-//        $excelSize = count($excelData);
-//        for ($i = 1; $i < $excelSize; $i++) {
-//            $domain = strtolower(trim($excelData[$i][13]));
-//            if (isset($countArr[$domain])) {
-//                $spreadsheet->getActiveSheet()->getStyle('A' . ($i + 1) . ':P' . ($i + 1))->applyFromArray([
-//                    'fill' => [
-//                        'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
-//                        'color' => array('rgb' => '6C757D')
-//                    ],
-//                ]);
-//            }
-//        }
-//        $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
-//        $writer->save(storage_path('app/public/files/updated.xlsx'));
-//        dd('DONE');
-//    }
+    public function getReconcile()
+    {
+        $hosts = Hosts::all();
+        return view('reconcile-db', compact('hosts'));
+    }
+
+    public function getDatabase(Request $request)
+    {
+        try {
+            $host = Hosts::find($request['id']);
+            $cpanel = new xmlapi($host['name']);
+            $cpanel->password_auth($host['username'], $host['password']);
+            $cpanel->set_output('json');
+            $cpanel->set_port(2083);
+            $res = $cpanel->api2_query($host['username'], 'MysqlFE', 'listdbsbackup');
+            $res = json_decode($res);
+            if (isset($res->cpanelresult->error) && !empty($res->cpanelresult->error))
+                return null;
+            $dbArr = [];
+            if (count($res->cpanelresult->data) > 0) {
+                foreach ($res->cpanelresult->data as $v) {
+                    $dbArr[$v->db] = $v->db;
+                }
+                $response = $cpanel->api2_query($host['username'], 'SubDomain', 'listsubdomains');
+                $response = json_decode($response);
+                if (count($response->cpanelresult->data) > 0) {
+                    $ftp_conn = ftp_connect($host['name']);
+                    ftp_login($ftp_conn, $host['username'], $host['password']);
+                    ftp_pasv($ftp_conn, true);
+                    foreach ($response->cpanelresult->data as $v) {
+                        $status = 0;
+                        $localFile = $_SERVER['DOCUMENT_ROOT'] . "/local.php";
+                        $connFile = $v->basedir . "/connection.php";
+                        if (ftp_get($ftp_conn, $localFile, $connFile)) {
+                            $db = file($localFile)[4];
+                            $db = explode('DB_NAME', $db)[1];
+                            $db = preg_replace('/[\',);\n]+/', "", $db);
+                            if (array_search($db, $dbArr)) {
+                                $status = 1;
+                            }
+                            $dbArr[$db] = [
+                                'domain' => $v->subdomain,
+                                'status' => $status
+                            ];
+                        }
+                    }
+                }
+            }
+            $resHtml = '';
+            foreach ($dbArr as $k => $v) {
+                $status = isset($v['domain']);
+                $resHtml .= '<tr id="' . (($status) ? $v['domain'] : $k) . '" class="' . (($status) ? 'bg-soft-success' : 'bg-soft-danger') . '">';
+                $resHtml .= '<td class="domain"><div class="form-check"><input class="form-check-input fs-15 checkBox" type="checkbox" value="' . (($status) ? $v['domain'] : $k) . '" name="domain" ' . (($status) ? 'disabled' : '') . '></div></td>';
+                $resHtml .= '<td>' . $k . '</td>';
+                $resHtml .= '<td>' . (($status) ? $v['domain'] : '') . '</td>';
+                $resHtml .= '<td class="status"></td>';
+                $resHtml .= '</tr>';
+            }
+            return json_encode([
+                'error' => false,
+                'html' => $resHtml
+            ]);
+        } catch (Exception $e) {
+            return json_encode([
+                'error' => true,
+                'res' => $e->getMessage()
+            ]);
+        }
+    }
+
+    public function postReconcile(Request $request)
+    {
+        try {
+            $host = Hosts::find($request['id']);
+            $cpanel = new xmlapi($host['name']);
+            $cpanel->password_auth($host['username'], $host['password']);
+            $cpanel->set_output('json');
+            $cpanel->set_port(2083);
+            $response = $cpanel->api2_query($host['username'], 'MysqlFE', 'listusersindb', array(
+                'db' => $request['db']
+            ));
+            $response = json_decode($response);
+            if (isset($response->cpanelresult->data) && count($response->cpanelresult->data) > 0) {
+                foreach ($response->cpanelresult->data as $v) {
+                    $cpanel->api2_query($host['username'], 'MysqlFE', 'deletedbuser', array(
+                        'dbuser' => $v->user
+                    ));
+                }
+            }
+            $response = $cpanel->api2_query($host['username'], 'MysqlFE', 'deletedb', array(
+                'db' => $request['db']
+            ));
+            return getResponse($response);
+        } catch (Exception $e) {
+            return json_encode([
+                'error' => true,
+                'res' => $e->getMessage()
+            ]);
+        }
+    }
+
+    public function getBackup()
+    {
+        $hosts = Hosts::all();
+        return view('domain-backup', compact('hosts'));
+    }
 }

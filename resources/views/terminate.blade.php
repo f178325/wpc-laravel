@@ -1,5 +1,5 @@
 @extends('includes.layout')
-@section('title','Bulk Create Emails')
+@section('title', 'Terminate Accounts')
 @section('body')
     <div class="page-content">
         <div class="container-fluid">
@@ -9,8 +9,8 @@
                         <h4 class="mb-sm-0">WPC</h4>
                         <div class="page-title-right">
                             <ol class="breadcrumb m-0">
-                                <li class="breadcrumb-item"><a href="javascript:void(0);">Dashboard</a></li>
-                                <li class="breadcrumb-item active">Create Emails</li>
+                                <li class="breadcrumb-item"><a href="javascript: void(0);">Dashboard</a></li>
+                                <li class="breadcrumb-item active">Terminate Account</li>
                             </ol>
                         </div>
                     </div>
@@ -20,34 +20,32 @@
                 <div class="col-lg-12">
                     <div id="formCard" class="card">
                         <div class="card-header align-items-center d-flex">
-                            <h4 class="card-title mb-0 flex-grow-1">Bulk Email Creation</h4>
+                            <h4 class="card-title mb-0 flex-grow-1">Terminate Accounts</h4>
                             <div class="flex-shrink-0">
-                                <a href="{{ asset('sample/sample_bulk_email_creator.xlsx') }}" download=""
+                                <a href="{{ asset('sample/sample_terminate.xlsx') }}" download=""
                                    class="btn-sm btn btn-secondary"><span
                                         class="me-1 mdi mdi-download"></span>Download Sample
                                 </a>
                             </div>
                         </div>
                         <div class="card-body">
-                            <div class="live-preview">
-                                <form id="pageForm" method="POST" enctype="multipart/form-data">
-                                    @csrf
-                                    <input type="hidden" name="format" value="emailTable">
-                                    <div class="row mb-3">
-                                        <div class="col-md-6">
-                                            <label for="file" class="form-label">File</label>
-                                            <input type="file" class="form-control" id="file"
-                                                   name="file" required>
-                                        </div>
+                            <form id="pageForm" method="POST" enctype="multipart/form-data">
+                                @csrf
+                                <input type="hidden" name="format" value="terminateTable">
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label for="file" class="form-label">File</label>
+                                        <input type="file" class="form-control" id="file"
+                                               name="file" required>
                                     </div>
-                                    <button class="btn btn-primary submitBtn">Submit</button>
-                                </form>
-                            </div>
+                                </div>
+                                <button class="btn btn-primary submitBtn">Submit</button>
+                            </form>
                         </div>
                     </div>
                     <div id="tableCard" class="card" style="display: none">
                         <div class="card-header align-items-center d-flex">
-                            <h4 class="card-title mb-0 flex-grow-1">Domains</h4>
+                            <h4 class="card-title mb-0 flex-grow-1">Accounts</h4>
                             <div class="flex-shrink-0">
                                 <button id="backBtn" class="btn btn-dark btn-sm"><i
                                         class="me-1 mdi mdi-arrow-left"></i>Go Back
@@ -63,10 +61,10 @@
                                 <thead>
                                 <tr>
                                     <th>#</th>
-                                    <th>Domain</th>
-                                    <th>Subdomain</th>
+                                    <th>Server</th>
                                     <th>Username</th>
                                     <th>Password</th>
+                                    <th>Account</th>
                                     <th>Status</th>
                                 </tr>
                                 </thead>
@@ -100,20 +98,20 @@
         });
         $("#processBtn").on('click', function () {
             $(this).prop('disabled', true);
-            $("#example tbody tr:not([disabled])").each(function () {
-                let domain, subdomain, username, password;
+            $("#example tbody tr").each(function () {
+                let server, username, password, account;
                 let rowStatus = $(this).find('.status');
                 rowStatus.html('<span>Processing... <span class="spinner-border spinner-border-sm"></span></span>');
-                domain = $(this).find('.domain').html();
-                subdomain = $(this).find('.subdomain').html();
+                server = $(this).find('.server').html();
                 username = $(this).find('.username').html();
                 password = $(this).find('.password').html();
-                ajaxCall('{{ route('postEmails') }}', 'Content', {
+                account = $(this).find('.account').html();
+                ajaxCall('{{ route('postTerminate') }}', 'Content', {
                     _token: '{{ csrf_token() }}',
-                    domain: domain,
-                    subdomain: subdomain,
+                    server: server,
                     username: username,
-                    password: password
+                    password: password,
+                    account: account
                 }, null, function (data) {
                     if (data.error) {
                         rowStatus.html('<span class="badge bg-danger">' + data.res + '</span>');

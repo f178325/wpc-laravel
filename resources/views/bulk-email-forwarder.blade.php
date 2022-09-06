@@ -98,10 +98,6 @@
             });
             return false;
         });
-        $("#backBtn").on('click', function () {
-            $("#tableCard").hide();
-            $("#formCard").show();
-        });
         $("#processBtn").on('click', function () {
             $(this).prop('disabled', true);
             $("#example tbody tr:not([disabled])").each(function () {

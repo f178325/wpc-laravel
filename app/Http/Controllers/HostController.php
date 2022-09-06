@@ -3,15 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Models\Hosts;
-use ErrorException;
+use Exception;
 use Illuminate\Http\Request;
-use Mockery\Exception;
+use xmlapi;
 
 class HostController extends Controller
 {
     public function getHosts()
     {
-        return view('servers');
+        $hosts = Hosts::all();
+        return view('servers', compact('hosts'));
     }
 
     public function postHosts(Request $request)
@@ -52,10 +53,46 @@ class HostController extends Controller
                     'msg' => 'Invalid credentials'
                 ]);
             }
-        } catch (Exception|ErrorException $e) {
+        } catch (Exception $e) {
             return json_encode([
                 'error' => true,
-                'msg' => $e->getMessage()
+                'res' => $e->getMessage()
+            ]);
+        }
+    }
+
+    public function getSubdomains(Request $request)
+    {
+        try {
+            $host = Hosts::find($request['id']);
+            $cpanel = new xmlapi($host['name']);
+            $cpanel->password_auth($host['username'], $host['password']);
+            $cpanel->set_output('json');
+            $cpanel->set_port(2083);
+            $response = $cpanel->api2_query($host['username'], 'SubDomain', 'listsubdomains');
+            $response = json_decode($response);
+            $optionHtml = '<option value="public_html">' . $host['name'] . '</option>';
+            if (isset($response->cpanelresult->error) && !empty($response->cpanelresult->error)) {
+                return json_encode([
+                    'error' => true,
+                    'msg' => $response->cpanelresult->error
+                ]);
+            }
+            if (count($response->cpanelresult->data) > 1) {
+                foreach ($response->cpanelresult->data as $v) {
+                    $optionHtml .= '<option value="' . $v->basedir . '">' . $v->domainkey . '</option>';
+                }
+            } elseif (!empty($response->cpanelresult->data->domainkey)) {
+                $optionHtml .= "<option value='" . $response->cpanelresult->data->basedir . "'>" . $response->cpanelresult->data->domainkey . "</option>";
+            }
+            return json_encode([
+                'error' => false,
+                'html' => $optionHtml
+            ]);
+        } catch (Exception $e) {
+            return json_encode([
+                'error' => true,
+                'res' => $e->getMessage()
             ]);
         }
     }

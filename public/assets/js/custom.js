@@ -37,10 +37,6 @@ function ajaxCall(h, ajaxType, formData, submitButton = false, successCallBack =
             }
         });
 }
-function refreshTable(idName) {
-    $('#' + idName).dataTable().fnDestroy();
-    createTable('#' + idName);
-}
 jQuery.browser = {};
 (function () {
     jQuery.browser.msie = false;

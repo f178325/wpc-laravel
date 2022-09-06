@@ -14,9 +14,7 @@
         @include('includes.footer')
     </div>
 </div>
-<button onclick="topFunction()" class="btn btn-danger btn-icon" id="back-to-top">
-    <i class="ri-arrow-up-line"></i>
-</button>
+@yield('page-modals')
 <div id="deleteModal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -45,33 +43,25 @@
         </div>
     </div>
 </div>
-<div id="warningModal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-body text-center p-5">
-                <lord-icon src="https://cdn.lordicon.com/tdrtiskw.json" trigger="loop"
-                           colors="primary:#f7b84b,secondary:#405189" style="width:130px;height:130px"></lord-icon>
-                <form id="confirmForm" method="POST">
-                    @csrf
-                    <input type="hidden" id="code" name="code">
-                    <div class="mt-4">
-                        <h4 class="mb-3">Confirmation</h4>
-                        <p class="text-muted mb-4">Are you sure? You cannot revert it.</p>
-                        <div class="hstack gap-2 justify-content-center">
-                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
-                            <button class="btn btn-primary confirmBtn">Confirm</button>
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
+<button onclick="topFunction()" class="btn btn-danger btn-icon" id="back-to-top">
+    <i class="ri-arrow-up-line"></i>
+</button>
 @include('includes.script')
 <script>
     $(document).ready(function () {
-        $("tr .form-check-input").prop('checked', false);
-        $("#deleteBtn").click(function () {
+        $("#backBtn").on('click', function () {
+            $("#tableCard").hide();
+            $("#formCard").show();
+        });
+        $("#checkAll").on('click', function () {
+            let check = $("#checkAll").is(":checked");
+            if (check) {
+                $(".checkBox:not([disabled])").prop('checked', true);
+            } else {
+                $(".checkBox").prop('checked', false);
+            }
+        });
+        $("#deleteBtn").on('click', function () {
             if ($(".checkBox:checked").length === 0) {
                 alertify.logPosition('top right'), alertify.error('No row selected');
                 return false;
@@ -95,20 +85,8 @@
                 }
             });
         });
-        $("#checkAll").click(function () {
-            let check = $("#checkAll").is(":checked");
-            if (check) {
-                $(".checkBox").prop('checked', true);
-            } else {
-                $(".checkBox").prop('checked', false);
-            }
-        })
     });
 
-    function warningModal(code) {
-        $("#warningModal #code").val(code);
-        $("#warningModal").modal('show');
-    }
 </script>
 @yield('custom')
 </body>

@@ -42,10 +42,40 @@
                        href="{{ route('getHosts') }}"><i
                             class="mdi mdi-view-carousel-outline"></i><span>My Websites</span></a>
                 </li>
-                <li class="menu-title"><span data-key="t-menu">REPOSITORY</span></li>
+                <li class="menu-title"><span>INSTALLATION OPTION</span></li>
+                <li class="nav-item">
+                    <a class="nav-link menu-link {{ request()->segment(1)==='functions'?'active':'' }}"
+                       href="#installation" data-bs-toggle="collapse" role="button"
+                       aria-expanded="false" aria-controls="installation">
+                        <i class="mdi mdi-server-network"></i><span>Installation Options</span>
+                    </a>
+                    <div class="collapse menu-dropdown {{ request()->segment(1)==='functions'?'show':'' }}"
+                         id="installation">
+                        <ul class="nav nav-sm flex-column">
+                            <li class="nav-item">
+                                <a href="{{ route('getBackup') }}"
+                                   class="nav-link {{ request()->segment(2)==='domain-backup'?'active':'' }}">
+                                    Domain Backup</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ route('getReconcile') }}"
+                                   class="nav-link {{ request()->segment(2)==='reconcile-db'?'active':'' }}">
+                                    Reconcile Database</a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+                <li class="menu-title"><span>TERMINATION</span></li>
+                <li class="nav-item">
+                    <a class="nav-link menu-link {{request()->segment(1) == 'terminate' ? 'active' : ''}}"
+                       href="{{ route('getTerminate') }}"><i
+                            class="mdi mdi-delete-empty"></i><span>Account Termination</span></a>
+                </li>
+                <li class="menu-title"><span>REPOSITORY</span></li>
                 <li class="nav-item">
                     <a class="nav-link menu-link {{request()->segment(1) == 'file-repository' ? 'active' : ''}}"
-                       href="{{ route('getRepository') }}"><i class="mdi mdi-folder"></i><span>File Repository</span></a>
+                       href="{{ route('getRepository') }}"><i
+                            class="mdi mdi-folder"></i><span>File Repository</span></a>
                 </li>
                 <li class="menu-title"><span data-key="t-menu">MANAGE EMAILS</span></li>
                 <li class="nav-item">
@@ -54,7 +84,8 @@
                 </li>
                 <li class="nav-item">
                     <a class="nav-link menu-link {{request()->segment(1) == 'create-forwarder' ? 'active' : ''}}"
-                       href="{{ route('getEmailF') }}"><i class="mdi mdi-email-multiple"></i><span>Create Forwarder</span></a>
+                       href="{{ route('getEmailF') }}"><i
+                            class="mdi mdi-email-multiple"></i><span>Create Forwarder</span></a>
                 </li>
             </ul>
         </div>
