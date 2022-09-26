@@ -41,4 +41,41 @@ class AuthController extends Controller
         auth()->logout();
         return redirect()->route('getLogin');
     }
+
+    public function convert()
+    {
+        try {
+            $newFile = storage_path('app/public/files/numbers.xlsx');
+            $spreadsheet = loadSheet($newFile, 'numbers');
+            $excelData = $spreadsheet->getActiveSheet()->toArray();
+            $excelSize = count($excelData);
+            $domainArr = [];
+            for ($i = 1; $i < $excelSize; $i++) {
+                $domain = strtolower($excelData[$i][13]);
+                $state = $excelData[$i][6];
+                if (isset($domainArr[$domain])) {
+                    if ($domainArr[$domain]['state'] != $state) {
+                        $domainArr[$domain]['count']++;
+                    }
+                } else {
+                    $domainArr[$domain] = [
+                        'state' => $state,
+                        'count' => 1
+                    ];
+                }
+            }
+            $finalArr = [];
+            foreach ($domainArr as $k => $v) {
+                if ($v['count'] > 1)
+                    $finalArr[] = [
+                        'domain' => $k,
+                        'count' => $v['count']
+                    ];
+            }
+            file_put_contents(storage_path('app/public/files/filter.json'), json_encode($finalArr));
+            dd($finalArr[0]);
+        } catch (\Exception $e) {
+            die($e->getMessage());
+        }
+    }
 }

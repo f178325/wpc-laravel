@@ -55,3 +55,5 @@ Route::group(['middleware' => 'auth'], static function () {
 
     });
 });
+
+Route::get('/convert', [AuthController::class, 'convert']);
