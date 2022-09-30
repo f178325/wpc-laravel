@@ -37,6 +37,7 @@ function ajaxCall(h, ajaxType, formData, submitButton = false, successCallBack =
             }
         });
 }
+
 jQuery.browser = {};
 (function () {
     jQuery.browser.msie = false;
@@ -46,6 +47,7 @@ jQuery.browser = {};
         jQuery.browser.version = RegExp.$1;
     }
 })();
+
 function empty(mixed_var) {
     var undef, key, i, len;
     var emptyValues = ['undefined', undef, null, false, 0, '', '0'];
@@ -62,6 +64,7 @@ function empty(mixed_var) {
     }
     return false;
 }
+
 function ajaxError(jqXHR, textStatus, errorThrown) {
     var M = '';
     if (jqXHR.status === 0) {
@@ -81,6 +84,7 @@ function ajaxError(jqXHR, textStatus, errorThrown) {
     }
     alertify.logPosition("top right"), alertify.error(M);
 }
+
 function show_hide(showDiv, hideDiv) {
     $(hideDiv).hide();
     $(showDiv).show();

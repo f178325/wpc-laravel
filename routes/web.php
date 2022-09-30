@@ -34,25 +34,30 @@ Route::group(['middleware' => 'auth'], static function () {
 
     Route::controller(CpanelController::class)->group(function () {
         Route::post('/get-table', 'getTable')->name('getTable');
-
-        Route::get('/bulk-create-emails', 'getEmails')->name('getEmails');
-        Route::post('/create-emails', 'postEmails')->name('postEmails');
-
-        Route::get('/create-forwarder', 'getEmailF')->name('getEmailF');
-        Route::post('/create-forwarder', 'postForwarder')->name('postForwarder');
+        Route::get('functions/domain-backup', 'getBackup')->name('getBackup');
 
         Route::get('/terminate', 'getTerminate')->name('getTerminate');
         Route::post('/terminate', 'postTerminate')->name('postTerminate');
 
-        Route::get('/file-repository', 'getRepository')->name('getRepository');
-        Route::post('/file-repository', 'getRepoList')->name('getRepoList');
+//        Routes related to email functions
+        Route::get('/bulk-create-emails', 'getEmails')->name('getEmails');
+        Route::post('/create-emails', 'postEmails')->name('postEmails');
+        Route::get('/create-forwarder', 'getEmailF')->name('getEmailF');
+        Route::post('/create-forwarder', 'postForwarder')->name('postForwarder');
 
+//        Routes related to database function
         Route::get('functions/reconcile-db', 'getReconcile')->name('getReconcile');
         Route::post('functions/reconcile-db', 'postReconcile')->name('postReconcile');
         Route::post('/get-database', 'getDatabase')->name('getDatabase');
 
-        Route::get('functions/domain-backup', 'getBackup')->name('getBackup');
 
+//        Routes related to repository functions
+        Route::get('/file-repository', 'getRepository')->name('getRepository');
+        Route::post('/file-repository', 'getRepoList')->name('getRepoList');
+        Route::post('/delete-file', 'postDeleteFile')->name('postDeleteFile');
+        Route::post('/create-directory', 'createDirectory')->name('createDirectory');
+        Route::post('/remove-directory', 'removeDirectory')->name('removeDirectory');
+        Route::post('/upload-file', 'uploadFile')->name('uploadFile');
     });
 });
 

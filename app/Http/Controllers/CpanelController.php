@@ -3,10 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Hosts;
-use App\Models\Servers;
 use App\Models\Tables;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\File;
 use xmlapi;
 
 class CpanelController extends Controller
@@ -74,16 +74,22 @@ class CpanelController extends Controller
     public function getRepoList(Request $request)
     {
         try {
-            $server = Servers::first();
-//            $conn_id = ftp_connect($server['name']);
-//            ftp_login($conn_id, $server['username'], $server['password']);
-//            ftp_pasv($conn_id, true);
-            if ($request['dir']) {
-                $repoPath = '';
-            } else {
-                $repoPath = asset($server['path']);
-            }
-            dd($repoPath);
+            $repoPath = public_path() . '/files/userfiles/' . $request['dir'];
+            return $this->getList($repoPath);
+        } catch (Exception $e) {
+            return json_encode([
+                'error' => true,
+                'msg' => $e->getMessage(),
+            ]);
+        }
+    }
+
+    public function postDeleteFile(Request $request)
+    {
+        try {
+            $path = public_path() . '/files/userfiles/' . $request['dir'];
+            File::delete($path . '/' . $request['fileName']);
+            return $this->getList($path);
         } catch (Exception $e) {
             return json_encode([
                 'error' => true,
@@ -245,5 +251,71 @@ class CpanelController extends Controller
     {
         $hosts = Hosts::all();
         return view('domain-backup', compact('hosts'));
+    }
+
+    public function getList($repoPath)
+    {
+        $dir = File::directories($repoPath);
+        $files = File::files($repoPath);
+        $html = '';
+        $filesArr = [];
+        foreach ($dir as $v) {
+            $v = explode('\\', $v);
+            $v = end($v);
+            $html .= "<option value='$v'>$v</option>";
+        }
+        foreach ($files as $v) {
+            $filesArr[] = $v->getFilename();
+        }
+        return json_encode(['dir' => $html, 'files' => $filesArr]);
+    }
+
+    public function createDirectory(Request $request)
+    {
+        try {
+            $path = public_path() . '/files/userfiles/' . $request['dir'] . '/' . $request['dirName'];
+            if (File::exists($path)) {
+                return json_encode(['error' => true, 'msg' => 'Directory already exist']);
+            }
+            File::makeDirectory($path);
+            return json_encode(['error' => false, 'msg' => 'Directory created successfully']);
+        } catch (Exception $e) {
+            return json_encode([
+                'error' => true,
+                'msg' => $e->getMessage()
+            ]);
+        }
+    }
+
+    public function removeDirectory(Request $request)
+    {
+        try {
+            $path = public_path() . '/files/userfiles/' . $request['dir'];
+            File::deleteDirectory($path);
+            return json_encode([
+                'error' => false,
+                'msg' => 'Directory removed'
+            ]);
+        } catch (Exception $e) {
+            return json_encode([
+                'error' => true,
+                'msg' => $e->getMessage()
+            ]);
+        }
+    }
+
+    public function uploadFile(Request $request)
+    {
+        try {
+            $file = $request['file'];
+            $path = public_path() . '/files/userfiles/' . $request['dir'];
+            $file->move($path, $file->getClientOriginalName());
+            return json_encode(['error' => false, 'msg' => 'File uploaded successfully']);
+        } catch (Exception $e) {
+            return json_encode([
+                'error' => true,
+                'msg' => $e->getMessage()
+            ]);
+        }
     }
 }

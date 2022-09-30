@@ -48,12 +48,12 @@
                                     <div class="col-md-6 mb-3">
                                         <label for="rootDir" class="form-label">Root Directory</label>
                                         <input type="text" class="form-control" id="rootDir" name="rootDir"
-                                               value="{{ auth()->user()->username }}" required>
+                                               value="{{ auth()->user()->username }}" readonly required>
                                     </div>
                                     <div class="col-md-6 mb-3">
                                         <label for="destDir" class="form-label">Destination Directory</label>
                                         <input type="text" class="form-control" id="destDir" name="destDir"
-                                               value="{{ auth()->user()->username }}" required>
+                                               value="{{ auth()->user()->username }}" readonly required>
                                     </div>
                                     <div class="col-md-6 mb-3">
                                         <label for="dirList" class="form-label">Directory List<span
